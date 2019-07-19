@@ -48,7 +48,7 @@ variable "storage_account_type" {
 
 variable "storage_os_disk_size" {
   description = "Defines the size of the OS disk"
-  default = "64"
+  default     = "64"
 }
 
 variable "vm_size" {
@@ -155,4 +155,9 @@ variable "enable_accelerated_networking" {
   type        = "string"
   description = "(Optional) Enable accelerated networking on Network interface"
   default     = "false"
+}
+
+variable "availability_set_id" {
+  default = ""
+  type    = "string"
 }
