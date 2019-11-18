@@ -1,10 +1,6 @@
-# provider "azurerm" {
-#   version = ">= 1.1.0"
-# }
-
-# provider "random" {
-#   version = "~> 1.0"
-# }
+provider "random" {
+  version = "~> 2.1"
+}
 
 module "os" {
   source       = "./os"
