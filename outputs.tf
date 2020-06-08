@@ -10,12 +10,12 @@ output "vm_identities" {
 
 output "network_security_group_id" {
   description = "id of the security group provisioned"
-  value       = "${azurerm_network_security_group.vm.id}"
+  value       = length(azurerm_network_security_group.vm.*.id) > 0 ? azurerm_network_security_group.vm[0].id : ""
 }
 
 output "network_security_group_name" {
   description = "name of the security group provisioned"
-  value       = "${azurerm_network_security_group.vm.name}"
+  value       = length(azurerm_network_security_group.vm.*.name) > 0 ? azurerm_network_security_group.vm[0].name : ""
 }
 
 output "network_interface_ids" {
@@ -45,5 +45,5 @@ output "public_ip_dns_name" {
 
 output "availability_set_id" {
   description = "id of the availability set where the vms are provisioned."
-  value       = "${var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm.id }"
+  value       = var.availability_set_id != "" ? var.availability_set_id : length(azurerm_availability_set.vm.*.id) > 0 ? azurerm_availability_set.vm[0].id : ""
 }
