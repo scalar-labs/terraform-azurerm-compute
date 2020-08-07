@@ -84,7 +84,7 @@ resource "azurerm_virtual_machine" "vm-linux-with-datadisk" {
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
   resource_group_name           = var.resource_group_name
-  availability_set_id           = var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
+  # availability_set_id           = var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
   vm_size                       = var.vm_size
   network_interface_ids         = [element(azurerm_network_interface.vm.*.id, count.index)]
   delete_os_disk_on_termination = var.delete_os_disk_on_termination
