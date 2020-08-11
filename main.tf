@@ -251,6 +251,7 @@ resource "azurerm_availability_set" "vm" {
 resource "azurerm_public_ip" "vm" {
   count               = var.nb_public_ip
   name                = "${var.vm_hostname}-${count.index + 1}-publicIP"
+  sku                 = length(var.availability_zones) > 0 ? "Standard" : "Basic"
   location            = var.location
   zones               = length(var.availability_zones) > 0 ? [var.availability_zones[count.index]] : null
   resource_group_name = var.resource_group_name
