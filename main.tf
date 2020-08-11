@@ -252,6 +252,7 @@ resource "azurerm_public_ip" "vm" {
   count               = var.nb_public_ip
   name                = "${var.vm_hostname}-${count.index + 1}-publicIP"
   location            = var.location
+  zones               = length(var.availability_zones) > 0 ? [var.availability_zones[count.index]] : null
   resource_group_name = var.resource_group_name
   allocation_method   = coalesce(var.allocation_method, var.public_ip_address_allocation, "Dynamic")
   domain_name_label   = element(var.public_ip_dns, count.index)
