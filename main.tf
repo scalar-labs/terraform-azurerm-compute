@@ -238,7 +238,7 @@ resource "azurerm_virtual_machine" "vm-windows-with-datadisk" {
 }
 
 resource "azurerm_availability_set" "vm" {
-  count                        = var.nb_instances > 0 && length(var.availability_zones) > 0 ? 1 : 0
+  count                        = var.nb_instances > 0 && length(var.availability_zones) == 0 ? 1 : 0
   name                         = "${var.vm_hostname}-avset"
   location                     = var.location
   resource_group_name          = var.resource_group_name
