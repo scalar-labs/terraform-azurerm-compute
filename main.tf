@@ -31,7 +31,7 @@ resource "azurerm_virtual_machine" "vm-linux" {
   location                      = var.location
   resource_group_name           = var.resource_group_name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
-  zones                         = length(var.availability_zones) > 0 ? [var.availability_zones[count.index]] : null
+  zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
   network_interface_ids         = [element(azurerm_network_interface.vm.*.id, count.index)]
   delete_os_disk_on_termination = var.delete_os_disk_on_termination
@@ -86,7 +86,7 @@ resource "azurerm_virtual_machine" "vm-linux-with-datadisk" {
   location                      = var.location
   resource_group_name           = var.resource_group_name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
-  zones                         = length(var.availability_zones) > 0 ? [var.availability_zones[count.index]] : null
+  zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
   network_interface_ids         = [element(azurerm_network_interface.vm.*.id, count.index)]
   delete_os_disk_on_termination = var.delete_os_disk_on_termination
@@ -145,7 +145,7 @@ resource "azurerm_virtual_machine" "vm-windows" {
   location                      = var.location
   resource_group_name           = var.resource_group_name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
-  zones                         = length(var.availability_zones) > 0 ? [var.availability_zones[count.index]] : null
+  zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
   network_interface_ids         = [element(azurerm_network_interface.vm.*.id, count.index)]
   delete_os_disk_on_termination = var.delete_os_disk_on_termination
@@ -190,7 +190,7 @@ resource "azurerm_virtual_machine" "vm-windows-with-datadisk" {
   location                      = var.location
   resource_group_name           = var.resource_group_name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
-  zones                         = length(var.availability_zones) > 0 ? [var.availability_zones[count.index]] : null
+  zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
   network_interface_ids         = [element(azurerm_network_interface.vm.*.id, count.index)]
   delete_os_disk_on_termination = var.delete_os_disk_on_termination
@@ -253,7 +253,7 @@ resource "azurerm_public_ip" "vm" {
   name                = "${var.vm_hostname}-${count.index + 1}-publicIP"
   sku                 = length(var.availability_zones) > 0 ? "Standard" : "Basic"
   location            = var.location
-  zones               = length(var.availability_zones) > 0 ? [var.availability_zones[count.index]] : null
+  zones               = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   resource_group_name = var.resource_group_name
   allocation_method   = coalesce(var.allocation_method, var.public_ip_address_allocation, length(var.availability_zones) > 0 ? "Static" : "Dynamic")
   domain_name_label   = element(var.public_ip_dns, count.index)
