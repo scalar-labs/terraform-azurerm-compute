@@ -167,3 +167,8 @@ variable "enable_accelerated_networking" {
 variable "availability_set_id" {
   default = ""
 }
+
+variable "availability_zones" {
+  type    = list(string)
+  default = []
+}
