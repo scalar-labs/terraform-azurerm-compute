@@ -1,16 +1,16 @@
 output "vm_ids" {
   description = "Virtual machine ids created."
-  value       = concat(azurerm_virtual_machine.vm-windows.*.id, azurerm_virtual_machine.vm-linux.*.id)
+  value       = azurerm_virtual_machine.vm-linux.*.id
 }
 
 output "network_security_group_id" {
   description = "id of the security group provisioned"
-  value       = azurerm_network_security_group.vm.id
+  value       = length(azurerm_network_security_group.vm.*.id) > 0 ? azurerm_network_security_group.vm[0].id : ""
 }
 
 output "network_security_group_name" {
   description = "name of the security group provisioned"
-  value       = azurerm_network_security_group.vm.name
+  value       = length(azurerm_network_security_group.vm.*.name) > 0 ? azurerm_network_security_group.vm[0].name : ""
 }
 
 output "network_interface_ids" {
@@ -40,15 +40,15 @@ output "public_ip_dns_name" {
 
 output "availability_set_id" {
   description = "id of the availability set where the vms are provisioned."
-  value       = azurerm_availability_set.vm.id
+  value       = var.availability_set_id != "" ? var.availability_set_id : length(azurerm_availability_set.vm.*.id) > 0 ? azurerm_availability_set.vm[0].id : ""
 }
 
 output "vm_zones" {
   description = "map with key `Virtual Machine Id`, value `list of the Availability Zone` which the Virtual Machine should be allocated in."
-  value       = zipmap(concat(azurerm_virtual_machine.vm-windows.*.id, azurerm_virtual_machine.vm-linux.*.id), concat(azurerm_virtual_machine.vm-windows.*.zones, azurerm_virtual_machine.vm-linux.*.zones))
+  value       = azurerm_virtual_machine.vm-linux.*.zones
 }
 
-output "vm_identity" {
-  description = "map with key `Virtual Machine Id`, value `list of identity` created for the Virtual Machine."
-  value       = zipmap(concat(azurerm_virtual_machine.vm-windows.*.id, azurerm_virtual_machine.vm-linux.*.id), concat(azurerm_virtual_machine.vm-windows.*.identity, azurerm_virtual_machine.vm-linux.*.identity))
+output "vm_identities" {
+  description = "identities of virtual machines created."
+  value       = azurerm_virtual_machine.vm-linux.*.identity
 }

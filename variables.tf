@@ -67,6 +67,12 @@ variable "storage_account_type" {
   default     = "Premium_LRS"
 }
 
+variable "storage_os_disk_size" {
+  description = "Defines the size of the OS disk"
+  type        = string
+  default     = "64"
+}
+
 variable "vm_size" {
   description = "Specifies the size of the virtual machine."
   type        = string
@@ -239,4 +245,14 @@ variable "os_profile_secrets" {
   description = "Specifies a list of certificates to be installed on the VM, each list item is a map with the keys source_vault_id, certificate_url and certificate_store."
   type        = list(map(string))
   default     = []
+}
+
+variable "availability_set_id" {
+  type    = string
+  default = ""
+}
+
+variable "availability_zones" {
+  type    = list(string)
+  default = []
 }
