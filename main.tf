@@ -1,7 +1,3 @@
-provider "random" {
-  version = "~> 2.1"
-}
-
 module "os" {
   source       = "./os"
   vm_os_simple = var.vm_os_simple
