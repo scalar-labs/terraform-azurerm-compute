@@ -3,6 +3,10 @@ module "os" {
   vm_os_simple = var.vm_os_simple
 }
 
+data "azurerm_resource_group" "vm" {
+  name = var.resource_group_name
+}
+
 resource "random_id" "vm-sa" {
   keepers = {
     vm_hostname = var.vm_hostname
@@ -14,7 +18,7 @@ resource "random_id" "vm-sa" {
 resource "azurerm_storage_account" "vm-sa" {
   count                    = var.boot_diagnostics ? 1 : 0
   name                     = "bootdiag${lower(random_id.vm-sa.hex)}"
-  resource_group_name      = var.resource_group_name
+  resource_group_name      = data.azurerm_resource_group.vm.name
   location                 = var.location
   account_tier             = element(split("_", var.boot_diagnostics_sa_type), 0)
   account_replication_type = element(split("_", var.boot_diagnostics_sa_type), 1)
@@ -22,10 +26,10 @@ resource "azurerm_storage_account" "vm-sa" {
 }
 
 resource "azurerm_virtual_machine" "vm-linux" {
-  count                         = ! contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && ! var.is_windows_image && ! var.data_disk ? var.nb_instances : 0
+  count                         = !contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && !var.is_windows_image && !var.data_disk ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
-  resource_group_name           = var.resource_group_name
+  resource_group_name           = data.azurerm_resource_group.vm.name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
   zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
@@ -77,10 +81,10 @@ resource "azurerm_virtual_machine" "vm-linux" {
 }
 
 resource "azurerm_virtual_machine" "vm-linux-with-datadisk" {
-  count                         = ! contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && ! var.is_windows_image && var.data_disk ? var.nb_instances : 0
+  count                         = !contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && !var.is_windows_image && var.data_disk ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
-  resource_group_name           = var.resource_group_name
+  resource_group_name           = data.azurerm_resource_group.vm.name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
   zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
@@ -136,10 +140,10 @@ resource "azurerm_virtual_machine" "vm-linux-with-datadisk" {
 }
 
 resource "azurerm_virtual_machine" "vm-windows" {
-  count                         = ((var.is_windows_image || contains(list(var.vm_os_simple, var.vm_os_offer), "Windows")) && ! var.data_disk) ? var.nb_instances : 0
+  count                         = ((var.is_windows_image || contains(list(var.vm_os_simple, var.vm_os_offer), "Windows")) && !var.data_disk) ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
-  resource_group_name           = var.resource_group_name
+  resource_group_name           = data.azurerm_resource_group.vm.name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
   zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
@@ -184,7 +188,7 @@ resource "azurerm_virtual_machine" "vm-windows-with-datadisk" {
   count                         = (var.is_windows_image || contains(list(var.vm_os_simple, var.vm_os_offer), "Windows")) && var.data_disk ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
-  resource_group_name           = var.resource_group_name
+  resource_group_name           = data.azurerm_resource_group.vm.name
   availability_set_id           = length(var.availability_zones) > 0 ? null : var.availability_set_id != "" ? var.availability_set_id : azurerm_availability_set.vm[0].id
   zones                         = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
   vm_size                       = var.vm_size
@@ -237,7 +241,7 @@ resource "azurerm_availability_set" "vm" {
   count                        = var.nb_instances > 0 && length(var.availability_zones) == 0 ? 1 : 0
   name                         = "${var.vm_hostname}-avset"
   location                     = var.location
-  resource_group_name          = var.resource_group_name
+  resource_group_name          = data.azurerm_resource_group.vm.name
   platform_fault_domain_count  = 2
   platform_update_domain_count = 2
   managed                      = true
@@ -250,7 +254,7 @@ resource "azurerm_public_ip" "vm" {
   sku                 = length(var.availability_zones) > 0 ? "Standard" : "Basic"
   location            = var.location
   zones               = length(var.availability_zones) > 0 ? [element(var.availability_zones, count.index)] : null
-  resource_group_name = var.resource_group_name
+  resource_group_name = data.azurerm_resource_group.vm.name
   allocation_method   = coalesce(var.allocation_method, var.public_ip_address_allocation, length(var.availability_zones) > 0 ? "Static" : "Dynamic")
   domain_name_label   = element(var.public_ip_dns, count.index)
   tags                = var.tags
@@ -260,7 +264,7 @@ resource "azurerm_network_security_group" "vm" {
   count               = var.nb_instances > 0 ? 1 : 0
   name                = "${var.vm_hostname}-${coalesce(var.remote_port, module.os.calculated_remote_port)}-nsg"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = data.azurerm_resource_group.vm.name
 
   tags = var.tags
 }
@@ -277,7 +281,7 @@ resource "azurerm_network_security_rule" "vm" {
   destination_port_range      = coalesce(var.remote_port, module.os.calculated_remote_port)
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = var.resource_group_name
+  resource_group_name         = data.azurerm_resource_group.vm.name
   network_security_group_name = azurerm_network_security_group.vm[0].name
 }
 
@@ -285,7 +289,7 @@ resource "azurerm_network_interface" "vm" {
   count                         = var.nb_instances
   name                          = "nic-${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
-  resource_group_name           = var.resource_group_name
+  resource_group_name           = data.azurerm_resource_group.vm.name
   network_security_group_id     = azurerm_network_security_group.vm[0].id
   enable_accelerated_networking = var.enable_accelerated_networking
 
