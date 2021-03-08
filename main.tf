@@ -290,7 +290,6 @@ resource "azurerm_network_interface" "vm" {
   name                          = "nic-${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.vm.name
-  network_security_group_id     = azurerm_network_security_group.vm[0].id
   enable_accelerated_networking = var.enable_accelerated_networking
 
   ip_configuration {
@@ -301,4 +300,10 @@ resource "azurerm_network_interface" "vm" {
   }
 
   tags = var.tags
+}
+
+resource "azurerm_network_interface_security_group_association" "vm" {
+  count                     = var.nb_instances
+  network_interface_id      = azurerm_network_interface.vm[count.index].id
+  network_security_group_id = azurerm_network_security_group.vm[0].id
 }
