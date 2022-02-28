@@ -293,7 +293,7 @@ resource "azurerm_network_interface" "vm" {
     name                          = "ipconfig${count.index}"
     subnet_id                     = var.vnet_subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = length(azurerm_public_ip.vm.*.id) > 0 ? element(concat(azurerm_public_ip.vm.*.id, tolist("")), count.index) : ""
+    public_ip_address_id          = length(azurerm_public_ip.vm.*.id) > 0 ? element(concat(azurerm_public_ip.vm.*.id, tolist([""])), count.index) : ""
   }
 
   tags = var.tags
