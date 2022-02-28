@@ -169,6 +169,6 @@ variable "availability_set_id" {
 }
 
 variable "availability_zones" {
-  type    = list(string)
+  type    = tolist(string)
   default = []
 }
