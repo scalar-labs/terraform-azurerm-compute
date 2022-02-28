@@ -22,7 +22,7 @@ resource "azurerm_storage_account" "vm-sa" {
 }
 
 resource "azurerm_virtual_machine" "vm-linux" {
-  count                         = ! contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && ! var.is_windows_image && ! var.data_disk ? var.nb_instances : 0
+  count                         = ! contains(tolist([var.vm_os_simple, var.vm_os_offer]), "Windows") && ! var.is_windows_image && ! var.data_disk ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
   resource_group_name           = var.resource_group_name
@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "vm-linux" {
 }
 
 resource "azurerm_virtual_machine" "vm-linux-with-datadisk" {
-  count                         = ! contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && ! var.is_windows_image && var.data_disk ? var.nb_instances : 0
+  count                         = ! contains(tolist([var.vm_os_simple, var.vm_os_offer]), "Windows") && ! var.is_windows_image && var.data_disk ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
   resource_group_name           = var.resource_group_name
@@ -136,7 +136,7 @@ resource "azurerm_virtual_machine" "vm-linux-with-datadisk" {
 }
 
 resource "azurerm_virtual_machine" "vm-windows" {
-  count                         = ((var.is_windows_image || contains(list(var.vm_os_simple, var.vm_os_offer), "Windows")) && ! var.data_disk) ? var.nb_instances : 0
+  count                         = ((var.is_windows_image || contains(tolist([var.vm_os_simple, var.vm_os_offer]), "Windows")) && ! var.data_disk) ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
   resource_group_name           = var.resource_group_name
@@ -181,7 +181,7 @@ resource "azurerm_virtual_machine" "vm-windows" {
 }
 
 resource "azurerm_virtual_machine" "vm-windows-with-datadisk" {
-  count                         = (var.is_windows_image || contains(list(var.vm_os_simple, var.vm_os_offer), "Windows")) && var.data_disk ? var.nb_instances : 0
+  count                         = (var.is_windows_image || contains(tolist([var.vm_os_simple, var.vm_os_offer]), "Windows")) && var.data_disk ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-${count.index + 1}"
   location                      = var.location
   resource_group_name           = var.resource_group_name
