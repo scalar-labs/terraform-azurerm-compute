@@ -273,23 +273,24 @@ resource "azurerm_network_security_rule" "vm" {
 }
 
 resource "azurerm_network_interface" "vm" {
-  count                         = var.nb_instances
-  name                          = "nic-${var.vm_hostname}-${count.index + 1}"
-  location                      = var.location
-  resource_group_name           = var.resource_group_name
-  network_security_group_id     = azurerm_network_security_group.vm.id
+  count                          = var.nb_instances
+  name                           = "nic-${var.vm_hostname}-${count.index + 1}"
+  location                       = var.location
+  resource_group_name            = var.resource_group_name
   enable_accelerated_networking = var.enable_accelerated_networking
 
-  depends_on = [
-    azurerm_network_security_group.vm
-  ]
-  
   ip_configuration {
-    name                          = "ipconfig${count.index}"
-    subnet_id                     = var.vnet_subnet_id
+    name                           = "ipconfig${count.index}"
+    subnet_id                      = var.vnet_subnet_id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = length(azurerm_public_ip.vm.*.id) > 0 ? element(concat(azurerm_public_ip.vm.*.id, list("")), count.index) : ""
   }
 
   tags = var.tags
+}
+
+resource "azurerm_network_interface_security_group_association" "vm" {
+  count                     = var.nb_instances
+  network_interface_id      = azurerm_network_interface.vm[count.index].id
+  network_security_group_id = azurerm_network_security_group.vm.id
 }
