@@ -280,6 +280,10 @@ resource "azurerm_network_interface" "vm" {
   network_security_group_id     = azurerm_network_security_group.vm.id
   enable_accelerated_networking = var.enable_accelerated_networking
 
+  depends_on = [
+    azurerm_network_security_group.vm
+  ]
+  
   ip_configuration {
     name                          = "ipconfig${count.index}"
     subnet_id                     = var.vnet_subnet_id
