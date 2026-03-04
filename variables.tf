@@ -48,7 +48,7 @@ variable "storage_account_type" {
 
 variable "storage_os_disk_size" {
   description = "Defines the size of the OS disk"
-  default     = "64"
+  default     = "32"
 }
 
 variable "vm_size" {
