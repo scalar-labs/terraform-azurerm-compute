@@ -10,6 +10,7 @@ variable "standard_os" {
     "RHEL"          = "RedHat,RHEL,7.5"
     "openSUSE-Leap" = "SUSE,openSUSE-Leap,42.2"
     "CentOS"        = "OpenLogic,CentOS,7.6"
+    "RockyLinux8"   = "resf,rockylinux-x86_64,8"
     "Debian"        = "credativ,Debian,8"
     "CoreOS"        = "CoreOS,CoreOS,Stable"
     "SLES"          = "SUSE,SLES,12-SP2"
