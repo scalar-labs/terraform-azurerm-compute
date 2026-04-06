@@ -7,6 +7,15 @@ module "os" {
   vm_os_simple = var.vm_os_simple
 }
 
+locals {
+  # Effective image fields (must match storage_image_reference below).
+  image_publisher = var.vm_os_id == "" ? coalesce(var.vm_os_publisher, module.os.calculated_value_os_publisher) : ""
+  image_offer     = var.vm_os_id == "" ? coalesce(var.vm_os_offer, module.os.calculated_value_os_offer) : ""
+  image_sku       = var.vm_os_id == "" ? coalesce(var.vm_os_sku, module.os.calculated_value_os_sku) : ""
+  # Rocky Linux (RESF) and some other Marketplace images require a plan on the VM resource.
+  marketplace_plan_required = var.vm_os_id == "" && local.image_publisher == "resf" && local.image_offer != "" && local.image_sku != ""
+}
+
 resource "random_id" "vm-sa" {
   keepers = {
     vm_hostname = var.vm_hostname
@@ -41,6 +50,15 @@ resource "azurerm_virtual_machine" "vm-linux" {
     offer     = var.vm_os_id == "" ? coalesce(var.vm_os_offer, module.os.calculated_value_os_offer) : ""
     sku       = var.vm_os_id == "" ? coalesce(var.vm_os_sku, module.os.calculated_value_os_sku) : ""
     version   = var.vm_os_id == "" ? var.vm_os_version : ""
+  }
+
+  dynamic "plan" {
+    for_each = local.marketplace_plan_required ? [1] : []
+    content {
+      name      = local.image_sku
+      publisher = local.image_publisher
+      product   = local.image_offer
+    }
   }
 
   storage_os_disk {
@@ -91,6 +109,15 @@ resource "azurerm_virtual_machine" "vm-linux-with-datadisk" {
     offer     = var.vm_os_id == "" ? coalesce(var.vm_os_offer, module.os.calculated_value_os_offer) : ""
     sku       = var.vm_os_id == "" ? coalesce(var.vm_os_sku, module.os.calculated_value_os_sku) : ""
     version   = var.vm_os_id == "" ? var.vm_os_version : ""
+  }
+
+  dynamic "plan" {
+    for_each = local.marketplace_plan_required ? [1] : []
+    content {
+      name      = local.image_sku
+      publisher = local.image_publisher
+      product   = local.image_offer
+    }
   }
 
   storage_os_disk {
